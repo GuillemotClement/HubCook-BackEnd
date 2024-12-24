@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Recipe;
 use App\Repository\RecipeRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,5 +36,20 @@ class RecipeController extends AbstractController
       //headers
       //true: indique que les données sont serialisé
       return new JsonResponse($jsonRecipeList, Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/api/recipes/{id}', name:'listDetail', methods:['GET'])]
+    public function listDetail(EntityManagerInterface $em, int $id, SerializerInterface $serializer): JsonResponse
+    {
+      //récupération de la recipe
+      $recipe = $em->getRepository(Recipe::class)->find($id);
+
+      //si on as une recette, alors on la retourne
+      if($recipe){
+        $jsonRecipe = $serializer->serialize($recipe, 'json');
+        return new JsonResponse($jsonRecipe, Response::HTTP_OK, [], true);
+      }
+
+      return new JsonResponse(null, Response::HTTP_NOT_FOUND);
     }
 }

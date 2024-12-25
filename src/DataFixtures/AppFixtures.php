@@ -21,7 +21,8 @@ class AppFixtures extends Fixture
         //on ajoute des données à l'instance
         $recipe->setName($faker->words(3, true))
                 ->setDescrib($faker->paragraph(3, true))
-                ->setImage('https://picsum.photos/id/'.($i +1 ). '/640/480');
+                ->setImage('https://picsum.photos/id/'.($i +1 ). '/640/480')
+                ->setCreatedAt(new \DateTimeImmutable());
 
         //on viens préparer la requête
         $manager->persist($recipe);

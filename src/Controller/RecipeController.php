@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Constraints\Json;
 
 class RecipeController extends AbstractController
 {
@@ -94,5 +95,18 @@ class RecipeController extends AbstractController
 
       //on retourne la nouvelle recipe, et on ajoute dans le headers le champs location qui contient l'url de la nouvelle recette
       return new JsonResponse($jsonRecipe, Response::HTTP_CREATED, ['location' => $location], true);
+    }
+
+    #[Route("api/recipe/{id}", name: "editRecipe", methods:['PUT'])]
+    public function editRecipe(Request $request, SerializerInterface $serializer, Recipe $recipe, EntityManagerInterface $em): JsonResponse
+    {
+      $updatedRecipe = $serializer->deserialize($request->getContent(), Recipe::class, 'json', [AbstractController::OBJECT_TO_POPULATE => $recipe]);
+      $updatedRecipe->setUpdatedAt(new \DateTimeImmutable());
+      $content = $request->toArray();
+
+
+      $em->persist($updatedRecipe);
+      $em->flush();
+      return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
     }
 }
